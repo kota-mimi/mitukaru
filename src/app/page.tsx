@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, Search, ShoppingBag } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Search, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
 import { proteins } from '@/lib/proteins'
+import ProteinSlider from '@/components/ProteinSlider'
 
 export default function Home() {
   return (
@@ -51,57 +52,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Section */}
-      <section className="py-24 bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="mb-8">
-             <h2 className="text-2xl font-bold text-gray-900 mb-2">人気のプロテイン</h2>
-             <p className="text-sm text-gray-600">多くのユーザーに選ばれているベストセラー</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {proteins.slice(0, 4).map((protein, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-md p-6 relative hover:shadow-lg transition-shadow">
-                <div className={`absolute top-3 right-3 ${
-                  index === 0 ? 'bg-yellow-500' : 
-                  index === 1 ? 'bg-gray-400' : 
-                  index === 2 ? 'bg-amber-600' : 'bg-blue-500'
-                } text-white text-sm font-bold px-2 py-1 rounded-full min-w-[24px] text-center`}>
-                  {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                </div>
-                
-                <div className="mb-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 pr-12">
-                    {protein.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">ブランド:</span> {protein.brand}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">味:</span> {protein.flavor}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div className="bg-gray-50 p-3 rounded">
-                    <p className="font-medium text-gray-700">タンパク質</p>
-                    <p className="text-lg font-bold text-blue-600">{protein.proteinPerServing}g</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <p className="font-medium text-gray-700">1食価格</p>
-                    <p className="text-lg font-bold text-green-600">¥{protein.pricePerServing}</p>
-                  </div>
-                </div>
-
-                <div className="text-xs text-gray-500 space-y-1">
-                  <p>カロリー: {protein.calories}kcal</p>
-                  <p>糖質: {protein.sugarPerServing}g</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Popular Section (Slider) */}
+      <ProteinSlider />
 
       {/* Feature Section */}
       <section className="py-24 bg-gray-50">
