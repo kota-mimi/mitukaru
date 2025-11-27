@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -86,7 +86,7 @@ function getPlatformColor(platform: string): string {
   return colors[platform as keyof typeof colors] || 'bg-gray-500'
 }
 
-export default function ProteinResultsPage() {
+function ProteinResultsContent() {
   const [results, setResults] = useState<SearchResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -434,5 +434,22 @@ export default function ProteinResultsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProteinResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">検索結果を読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ProteinResultsContent />
+    </Suspense>
   )
 }
