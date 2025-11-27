@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
               <h4 className="font-bold text-gray-900 mb-4">メニュー</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                   <li><Link href="/" className="hover:text-blue-600">トップページ</Link></li>
-                  <li><Link href="/diagnose" className="hover:text-blue-600">AI診断</Link></li>
+                  <li><Link href="/simple-diagnosis" className="hover:text-blue-600">プロテイン診断</Link></li>
               </ul>
           </div>
           

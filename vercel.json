@@ -1,5 +1,14 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/update-cache?token=update-morning-8am",
+      "schedule": "0 23 * * *"
+    }
+  ],
+  "env": {
+    "CACHE_UPDATE_TOKEN": "update-morning-8am"
+  }
 }

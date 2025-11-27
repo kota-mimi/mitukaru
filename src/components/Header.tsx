@@ -27,16 +27,10 @@ const Header: React.FC = () => {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
             <Link 
-              href="/diagnose" 
-              className={`text-sm font-bold transition-colors ${isActive('/diagnose') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
-            >
-              簡単診断
-            </Link>
-            <Link 
-              href="/advanced-diagnosis" 
+              href="/simple-diagnosis" 
               className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
-              詳細AI診断
+              🎯 プロテイン診断
             </Link>
           </nav>
 
@@ -63,18 +57,11 @@ const Header: React.FC = () => {
                         トップページ
                     </Link>
                     <Link 
-                        href="/diagnose" 
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-base font-bold text-gray-900"
-                    >
-                        簡単診断
-                    </Link>
-                    <Link 
-                        href="/advanced-diagnosis" 
+                        href="/simple-diagnosis" 
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="block text-center w-full bg-blue-600 text-white font-bold py-3 rounded-xl"
                     >
-                        詳細AI診断
+                        🎯 プロテイン診断
                     </Link>
                 </div>
             </div>
