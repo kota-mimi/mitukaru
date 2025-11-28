@@ -46,10 +46,43 @@ export async function GET() {
   try {
     console.log('🔍 楽天APIから人気商品を取得中...')
 
-    // 診断APIと同じ検索方法を使用
-    const wheyProducts = await searchRakutenProducts('プロテイン ホエイ', 4)
-    const soyProducts = await searchRakutenProducts('プロテイン ソイ', 4)
+    // 多様な検索クエリで最大商品を取得
+    const searches = [
+      { query: 'プロテイン ホエイ', category: 'whey', hits: 30 },
+      { query: 'ホエイプロテイン', category: 'whey', hits: 30 },
+      { query: 'WPC プロテイン', category: 'whey', hits: 20 },
+      { query: 'WPI プロテイン', category: 'whey', hits: 20 },
+      { query: 'プロテイン ソイ', category: 'soy', hits: 30 },
+      { query: 'ソイプロテイン', category: 'soy', hits: 30 },
+      { query: '大豆プロテイン', category: 'soy', hits: 20 },
+      { query: 'プロテイン 植物性', category: 'soy', hits: 20 }
+    ]
+
+    console.log('📊 複数クエリで楽天API検索開始...')
+    const searchPromises = searches.map(search => 
+      searchRakutenProducts(search.query, search.hits).then(products => ({
+        category: search.category,
+        products
+      }))
+    )
+
+    const searchResults = await Promise.all(searchPromises)
     
+    // カテゴリ別に商品を統合（重複除去）
+    const wheyProductsMap = new Map()
+    const soyProductsMap = new Map()
+
+    searchResults.forEach(result => {
+      result.products.forEach(product => {
+        const productMap = result.category === 'whey' ? wheyProductsMap : soyProductsMap
+        if (!productMap.has(product.id)) {
+          productMap.set(product.id, product)
+        }
+      })
+    })
+
+    const wheyProducts = Array.from(wheyProductsMap.values())
+    const soyProducts = Array.from(soyProductsMap.values())
     const allProducts = [...wheyProducts, ...soyProducts]
 
     const categories = [
