@@ -53,112 +53,25 @@ export default function FeaturedProducts() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // ダミーデータを使用して確実に画像表示
-    const dummyCategories: Category[] = [
-      {
-        category: 'whey',
-        categoryName: 'ホエイプロテイン',
-        products: [
-          {
-            id: '1',
-            name: 'ザバス ホエイプロテイン100 リッチショコラ味',
-            brand: 'SAVAS',
-            imageUrl: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&h=300&fit=crop',
-            reviewAverage: 4.3,
-            reviewCount: 1250,
-            description: '吸収の良いホエイプロテインを100%使用',
-            nutrition: { protein: 21, calories: 118, servings: 50, servingSize: 21 },
-            type: 'ホエイ',
-            flavor: 'チョコレート',
-            price: 4200,
-            pricePerServing: 84,
-            shopName: '楽天24',
-            affiliateUrl: '#',
-            category: 'whey'
-          },
-          {
-            id: '2',
-            name: 'ゴールドスタンダード 100% ホエイ',
-            brand: 'Optimum Nutrition',
-            imageUrl: 'https://images.unsplash.com/photo-1571770095004-6b61b1cf308a?w=400&h=300&fit=crop',
-            reviewAverage: 4.7,
-            reviewCount: 890,
-            description: '世界で最も売れているプロテイン',
-            nutrition: { protein: 24, calories: 120, servings: 74, servingSize: 30.4 },
-            type: 'ホエイ',
-            flavor: 'バニラ',
-            price: 8500,
-            pricePerServing: 115,
-            shopName: 'iHerb',
-            affiliateUrl: '#',
-            category: 'whey'
-          },
-          {
-            id: '3',
-            name: 'エクスプロージョン ホエイプロテイン',
-            brand: 'X-PLOSION',
-            imageUrl: 'https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=400&h=300&fit=crop',
-            reviewAverage: 4.1,
-            reviewCount: 2100,
-            description: 'コストパフォーマンス抜群の国産プロテイン',
-            nutrition: { protein: 22, calories: 112, servings: 100, servingSize: 30 },
-            type: 'ホエイ',
-            flavor: 'ミルクチョコ',
-            price: 5999,
-            pricePerServing: 60,
-            shopName: 'Amazon',
-            affiliateUrl: '#',
-            category: 'whey'
-          },
-          {
-            id: '4',
-            name: 'ビーレジェンド ホエイプロテイン',
-            brand: 'be LEGEND',
-            imageUrl: 'https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400&h=300&fit=crop',
-            reviewAverage: 4.5,
-            reviewCount: 1800,
-            description: '美味しさにこだわった国産プロテイン',
-            nutrition: { protein: 20, calories: 106, servings: 29, servingSize: 29 },
-            type: 'ホエイ',
-            flavor: 'ナチュラル',
-            price: 3980,
-            pricePerServing: 137,
-            shopName: 'Yahoo!',
-            affiliateUrl: '#',
-            category: 'whey'
-          }
-        ]
-      },
-      {
-        category: 'soy',
-        categoryName: 'ソイプロテイン',
-        products: [
-          {
-            id: '5',
-            name: 'ザバス ソイプロテイン100',
-            brand: 'SAVAS',
-            imageUrl: 'https://images.unsplash.com/photo-1622597467836-f3c7ca9d0b0b?w=400&h=300&fit=crop',
-            reviewAverage: 4.2,
-            reviewCount: 980,
-            description: '大豆プロテインを100%使用した植物性プロテイン',
-            nutrition: { protein: 19, calories: 108, servings: 45, servingSize: 21 },
-            type: 'ソイ',
-            flavor: 'ココア',
-            price: 3800,
-            pricePerServing: 84,
-            shopName: '楽天24',
-            affiliateUrl: '#',
-            category: 'soy'
-          }
-        ]
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch('/api/featured-products')
+        const data = await response.json()
+        
+        if (data.success) {
+          setCategories(data.categories)
+        } else {
+          setError(data.error)
+        }
+      } catch (err) {
+        console.error('人気商品取得エラー:', err)
+        setError('商品情報の取得に失敗しました')
+      } finally {
+        setLoading(false)
       }
-    ]
+    }
 
-    // ダミーデータを設定
-    setTimeout(() => {
-      setCategories(dummyCategories)
-      setLoading(false)
-    }, 500)
+    fetchFeaturedProducts()
   }, [])
 
   if (loading) {
