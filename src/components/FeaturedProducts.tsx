@@ -283,65 +283,94 @@ export default function FeaturedProducts() {
                 </Link>
               </div>
 
-              {/* Products Grid - Compact Design */}
+              {/* Products Grid - Diagnosis Style (Compact) */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                {category.products.slice(0, 12).map((product) => (
-                  <div key={product.id} className="group bg-white rounded-lg shadow-sm hover:shadow-lg border border-gray-100 overflow-hidden transition-all duration-200 hover:scale-102">
-                    {/* Compact Product Image */}
-                    <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
+                {category.products.slice(0, 12).map((product, index) => (
+                  <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    {/* Ranking Badge (for first 3 items) */}
+                    {index < 3 && (
+                      <div className={`absolute z-10 m-2 px-2 py-1 rounded-full text-white font-bold text-xs ${
+                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
+                      }`}>
+                        {index === 0 ? '🥇 1位' : index === 1 ? '🥈 2位' : '🥉 3位'}
+                      </div>
+                    )}
+
+                    {/* NEW Badge for others */}
+                    {index >= 3 && (
+                      <div className="absolute z-10 top-2 right-2">
+                        <div className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                          NEW
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Product Image */}
+                    <div className="relative bg-gray-100">
                       <img
-                        src={product.imageUrl || 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=200&fit=crop'}
+                        src={product.imageUrl || 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=150&fit=crop'}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-32 object-contain bg-gray-50 rounded-t-lg"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=200&fit=crop'
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=150&fit=crop'
                         }}
                       />
-                      
-                      {/* Small Badge */}
-                      <div className="absolute top-2 left-2">
-                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          NEW
-                        </span>
-                      </div>
                     </div>
 
-                    {/* Compact Product Info */}
                     <div className="p-3">
-                      {/* Brand & Rating */}
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-500 font-medium">
-                          {product.brand.length > 8 ? product.brand.substring(0, 8) + '...' : product.brand}
+                      {/* Brand and Type Tags */}
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                          {product.brand.length > 6 ? product.brand.substring(0, 6) + '...' : product.brand}
                         </span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                          <span className="text-xs text-gray-600">{product.reviewAverage}</span>
-                        </div>
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                          {product.type}
+                        </span>
                       </div>
 
                       {/* Product Name */}
-                      <h3 className="font-semibold text-gray-900 mb-2 text-sm leading-tight line-clamp-2">
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm">
                         {product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}
                       </h3>
 
-                      {/* Price */}
+                      {/* Price Display (Diagnosis Style) */}
                       <div className="mb-3">
                         <div className="text-lg font-bold text-gray-900">
-                          ¥{product.price?.toLocaleString() || '0'}
+                          ¥{product.pricePerServing}
+                          <span className="text-xs font-normal text-gray-600">/食</span>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          1食 ¥{product.pricePerServing}
+                        <div className="text-xs text-gray-600">
+                          本体価格: ¥{product.price?.toLocaleString() || '0'}
                         </div>
                       </div>
 
-                      {/* Compact Purchase Button */}
+                      {/* Nutrition Info */}
+                      <div className="grid grid-cols-2 gap-1 mb-3 text-xs">
+                        <div className="bg-gray-50 p-1 rounded text-center">
+                          <div className="text-gray-600">プロテイン</div>
+                          <div className="font-bold text-gray-900">{product.nutrition.protein}g</div>
+                        </div>
+                        <div className="bg-gray-50 p-1 rounded text-center">
+                          <div className="text-gray-600">カロリー</div>
+                          <div className="font-bold text-gray-900">{product.nutrition.calories}</div>
+                        </div>
+                      </div>
+
+                      {/* Rating */}
+                      <div className="flex items-center justify-center gap-1 mb-3 text-xs">
+                        <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                        <span className="font-medium">{product.reviewAverage}</span>
+                        <span className="text-gray-500">({product.reviewCount})</span>
+                      </div>
+
+                      {/* Purchase Button */}
                       <a
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-3 rounded-lg font-semibold text-sm transition-colors"
+                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-3 rounded-lg font-semibold text-xs transition-colors"
                       >
-                        購入
+                        🛒 購入する
                       </a>
                     </div>
                   </div>
