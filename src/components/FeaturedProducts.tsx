@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Star, ArrowRight, Tag, TrendingUp, Award, DollarSign, Search, X } from 'lucide-react'
+import { Star, ArrowRight, Tag, TrendingUp, Award, DollarSign, Search, X, Filter, SlidersHorizontal, ChevronDown } from 'lucide-react'
 
 interface Product {
   id: string
@@ -53,6 +53,9 @@ export default function FeaturedProducts() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([])
+  const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'rating' | 'review'>('default')
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000])
+  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
@@ -86,24 +89,45 @@ export default function FeaturedProducts() {
     fetchFeaturedProducts()
   }, [])
 
-  // 検索機能
+  // 検索・フィルタリング・ソート機能
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredCategories(categories)
-      return
-    }
-
-    const filtered = categories.map(category => ({
+    let filtered = categories.map(category => ({
       ...category,
-      products: category.products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.type.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      products: category.products.filter(product => {
+        // テキスト検索
+        const matchesSearch = !searchTerm.trim() || 
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.type.toLowerCase().includes(searchTerm.toLowerCase())
+        
+        // 価格帯フィルター
+        const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+        
+        return matchesSearch && matchesPrice
+      })
     })).filter(category => category.products.length > 0)
 
+    // ソート機能
+    filtered = filtered.map(category => ({
+      ...category,
+      products: category.products.sort((a, b) => {
+        switch (sortBy) {
+          case 'price-asc':
+            return a.price - b.price
+          case 'price-desc':
+            return b.price - a.price
+          case 'rating':
+            return b.reviewAverage - a.reviewAverage
+          case 'review':
+            return b.reviewCount - a.reviewCount
+          default:
+            return 0
+        }
+      })
+    }))
+
     setFilteredCategories(filtered)
-  }, [searchTerm, categories])
+  }, [searchTerm, categories, sortBy, priceRange])
 
   if (loading) {
     return (
@@ -149,26 +173,89 @@ export default function FeaturedProducts() {
             実際に売れている商品から厳選。複数のECサイトから価格・在庫・レビュー情報を比較できます。
           </p>
           
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto relative">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="プロテインを検索..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          {/* Search and Filter Bar */}
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col lg:flex-row gap-4 items-center">
+              {/* Search Bar */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="プロテインを検索..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="appearance-none bg-white border border-gray-300 rounded-xl px-4 py-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
+                  <option value="default">デフォルト</option>
+                  <option value="price-asc">価格: 安い順</option>
+                  <option value="price-desc">価格: 高い順</option>
+                  <option value="rating">評価順</option>
+                  <option value="review">レビュー数順</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              </div>
+
+              {/* Filter Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-colors ${
+                  showFilters 
+                    ? 'bg-blue-500 text-white border-blue-500' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+                フィルター
+              </button>
             </div>
+
+            {/* Price Range Filter */}
+            {showFilters && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-gray-700">価格帯:</span>
+                  <input
+                    type="number"
+                    placeholder="最小"
+                    value={priceRange[0]}
+                    onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <span className="text-gray-500">〜</span>
+                  <input
+                    type="number"
+                    placeholder="最大"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 10000])}
+                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <span className="text-sm text-gray-500">円</span>
+                  <button
+                    onClick={() => setPriceRange([0, 10000])}
+                    className="text-sm text-blue-500 hover:text-blue-700"
+                  >
+                    リセット
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -196,92 +283,65 @@ export default function FeaturedProducts() {
                 </Link>
               </div>
 
-              {/* Products Grid - Premium Design */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {category.products.slice(0, 8).map((product) => (
-                  <div key={product.id} className="group bg-white rounded-xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
-                    {/* Product Image */}
-                    <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100">
+              {/* Products Grid - Compact Design */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {category.products.slice(0, 12).map((product) => (
+                  <div key={product.id} className="group bg-white rounded-lg shadow-sm hover:shadow-lg border border-gray-100 overflow-hidden transition-all duration-200 hover:scale-102">
+                    {/* Compact Product Image */}
+                    <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
                       <img
-                        src={product.imageUrl || 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&h=300&fit=crop'}
+                        src={product.imageUrl || 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=200&fit=crop'}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&h=300&fit=crop'
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=200&h=200&fit=crop'
                         }}
                       />
                       
-                      {/* Discount Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                      {/* Small Badge */}
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                           NEW
                         </span>
                       </div>
-
-                      {/* Wishlist Button */}
-                      <div className="absolute top-3 right-3">
-                        <button className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all">
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
-                        </button>
-                      </div>
                     </div>
 
-                    {/* Product Info */}
-                    <div className="p-5">
-                      {/* Brand */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                          {product.brand}
+                    {/* Compact Product Info */}
+                    <div className="p-3">
+                      {/* Brand & Rating */}
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-500 font-medium">
+                          {product.brand.length > 8 ? product.brand.substring(0, 8) + '...' : product.brand}
                         </span>
                         <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-700">{product.reviewAverage}</span>
-                          <span className="text-xs text-gray-500">({product.reviewCount})</span>
+                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                          <span className="text-xs text-gray-600">{product.reviewAverage}</span>
                         </div>
                       </div>
 
                       {/* Product Name */}
-                      <h3 className="font-bold text-gray-900 mb-3 text-lg leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
-                        {product.name.length > 50 ? product.name.substring(0, 50) + '...' : product.name}
+                      <h3 className="font-semibold text-gray-900 mb-2 text-sm leading-tight line-clamp-2">
+                        {product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}
                       </h3>
 
-                      {/* Product Features */}
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-full">
-                          <span className="text-xs font-bold text-blue-600">プロテイン</span>
-                          <span className="text-sm font-bold text-blue-700">{product.nutrition.protein}g</span>
-                        </div>
-                        <div className="flex items-center gap-1 bg-green-50 px-3 py-1.5 rounded-full">
-                          <span className="text-xs font-medium text-green-600">カロリー</span>
-                          <span className="text-sm font-bold text-green-700">{product.nutrition.calories}</span>
-                        </div>
-                      </div>
-
                       {/* Price */}
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-gray-900">
-                            ¥{product.price?.toLocaleString() || '0'}
-                          </span>
-                          <span className="text-sm text-gray-500 line-through">
-                            ¥{Math.round((product.price || 0) * 1.2)?.toLocaleString()}
-                          </span>
+                      <div className="mb-3">
+                        <div className="text-lg font-bold text-gray-900">
+                          ¥{product.price?.toLocaleString() || '0'}
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          1食あたり ¥{product.pricePerServing}
+                        <div className="text-xs text-gray-500">
+                          1食 ¥{product.pricePerServing}
                         </div>
                       </div>
 
-                      {/* Purchase Button */}
+                      {/* Compact Purchase Button */}
                       <a
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-3 px-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-3 rounded-lg font-semibold text-sm transition-colors"
                       >
-                        🛒 カートに追加
+                        購入
                       </a>
                     </div>
                   </div>
@@ -289,7 +349,7 @@ export default function FeaturedProducts() {
               </div>
               
               {/* View All Button */}
-              {category.products.length > 8 && (
+              {category.products.length > 12 && (
                 <div className="mt-8 text-center">
                   <Link 
                     href="/products"
