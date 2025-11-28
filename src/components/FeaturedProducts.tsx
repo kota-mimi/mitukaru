@@ -34,16 +34,16 @@ interface Category {
 }
 
 const categoryIcons = {
-  whey: <TrendingUp className="w-5 h-5" />,
-  soy: <Award className="w-5 h-5" />,
-  budget: <DollarSign className="w-5 h-5" />,
+  popular: <TrendingUp className="w-5 h-5" />,
+  cospa: <DollarSign className="w-5 h-5" />,
+  sale: <Tag className="w-5 h-5" />,
   premium: <Star className="w-5 h-5" />
 }
 
 const categoryColors = {
-  whey: 'bg-blue-500',
-  soy: 'bg-green-500',
-  budget: 'bg-orange-500',
+  popular: 'bg-red-500',
+  cospa: 'bg-orange-500',
+  sale: 'bg-green-500',
   premium: 'bg-purple-500'
 }
 

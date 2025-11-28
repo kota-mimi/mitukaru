@@ -48,7 +48,7 @@ export async function GET() {
 
     // シンプルな検索クエリで確実に商品を取得
     const searches = [
-      { query: 'プロテイン', category: 'whey', hits: 30 }
+      { query: 'プロテイン', category: 'popular', hits: 12 }
     ]
 
     console.log('📊 複数クエリで楽天API検索開始...')
@@ -61,24 +61,29 @@ export async function GET() {
 
     const searchResults = await Promise.all(searchPromises)
     
-    // 取得した商品をカテゴリ分けせずに表示
+    // 取得した商品を3つのカテゴリに分類
     const allProducts = searchResults.flatMap(result => result.products)
     
-    // 商品をランダムに2つのカテゴリに分割
-    const mid = Math.ceil(allProducts.length / 2)
-    const wheyProducts = allProducts.slice(0, mid)
-    const soyProducts = allProducts.slice(mid)
+    // 12商品を4商品ずつ3カテゴリに分割
+    const popularProducts = allProducts.slice(0, 4)  // 人気順上位
+    const cospaProducts = allProducts.slice(4, 8)    // 中位をコスパ商品として
+    const saleProducts = allProducts.slice(8, 12)    // 残りをセール商品として
 
     const categories = [
       {
-        category: 'whey',
-        categoryName: 'ホエイプロテイン',
-        products: wheyProducts
+        category: 'popular',
+        categoryName: '🔥 人気のプロテイン',
+        products: popularProducts
       },
       {
-        category: 'soy', 
-        categoryName: 'ソイプロテイン',
-        products: soyProducts
+        category: 'cospa', 
+        categoryName: '💰 コスパ重視',
+        products: cospaProducts
+      },
+      {
+        category: 'sale', 
+        categoryName: '🎯 セール中',
+        products: saleProducts
       }
     ]
 
