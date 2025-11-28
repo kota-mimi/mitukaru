@@ -277,7 +277,7 @@ function processRakutenProduct(product: any, filters: SearchFilters) {
     id: `rakuten_${product.itemCode}`,
     name: itemName,
     brand: extractBrandFromName(itemName),
-    imageUrl: product.mediumImageUrls?.[0] || product.smallImageUrls?.[0] || '',
+    imageUrl: product.mediumImageUrls?.[0]?.imageUrl || product.smallImageUrls?.[0]?.imageUrl || '',
     reviewAverage: parseFloat(product.reviewAverage) || 0,
     reviewCount: product.reviewCount || 0,
     description: description.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
