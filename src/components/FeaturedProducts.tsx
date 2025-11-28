@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Star, ArrowRight, Tag, TrendingUp, Award, DollarSign } from 'lucide-react'
+import { Star, ArrowRight, Tag, TrendingUp, Award, DollarSign, Search, X } from 'lucide-react'
 
 interface Product {
   id: string
@@ -51,6 +51,8 @@ export default function FeaturedProducts() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([])
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
@@ -60,6 +62,7 @@ export default function FeaturedProducts() {
         
         if (data.success) {
           setCategories(data.categories)
+          setFilteredCategories(data.categories)
         } else {
           setError(data.error)
         }
@@ -73,6 +76,25 @@ export default function FeaturedProducts() {
 
     fetchFeaturedProducts()
   }, [])
+
+  // 検索機能
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredCategories(categories)
+      return
+    }
+
+    const filtered = categories.map(category => ({
+      ...category,
+      products: category.products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.type.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    })).filter(category => category.products.length > 0)
+
+    setFilteredCategories(filtered)
+  }, [searchTerm, categories])
 
   if (loading) {
     return (
@@ -110,18 +132,40 @@ export default function FeaturedProducts() {
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             🔥 人気のプロテイン
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
             実際に売れている商品から厳選。複数のECサイトから価格・在庫・レビュー情報を比較できます。
           </p>
+          
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="プロテインを検索..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Categories */}
         <div className="space-y-16">
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <div key={category.category} className="relative">
               {/* Category Header */}
               <div className="flex items-center justify-between mb-8">
@@ -143,10 +187,10 @@ export default function FeaturedProducts() {
                 </Link>
               </div>
 
-              {/* Products Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Products Grid - Ultra Compact */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                 {category.products.map((product) => (
-                  <div key={product.id} className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                  <div key={product.id} className="group bg-white border border-gray-100 rounded-md overflow-hidden hover:shadow-md transition-all duration-300">
                     {/* Product Image - Square Layout */}
                     <div className="relative aspect-square bg-gray-100">
                       <img
@@ -173,45 +217,30 @@ export default function FeaturedProducts() {
                       </div>
                     </div>
 
-                    {/* Product Info - Compact Layout */}
-                    <div className="p-2">
+                    {/* Product Info - Ultra Compact */}
+                    <div className="p-1">
                       {/* Product Name */}
-                      <h4 className="font-bold text-gray-900 mb-1 line-clamp-2 text-xs group-hover:text-blue-600 transition-colors leading-tight">
-                        {product.name.length > 35 ? product.name.substring(0, 35) + '...' : product.name}
+                      <h4 className="font-bold text-gray-900 mb-1 text-xs group-hover:text-blue-600 transition-colors leading-tight line-clamp-1">
+                        {product.name.length > 25 ? product.name.substring(0, 25) + '...' : product.name}
                       </h4>
 
                       {/* Price */}
-                      <div className="mb-2">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-base font-bold text-gray-900">
+                      <div className="mb-1">
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="text-sm font-bold text-gray-900">
                             ¥{product.pricePerServing}
                           </span>
                           <span className="text-xs text-gray-600">/食</span>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          ¥{product.price.toLocaleString()}
-                        </div>
                       </div>
 
-                      {/* Nutrition - Compact */}
-                      <div className="grid grid-cols-2 gap-1 mb-2">
-                        <div className="bg-blue-50 p-1 rounded text-center">
-                          <div className="text-xs text-gray-600">タンパク質</div>
-                          <div className="text-sm font-bold text-blue-600">{product.nutrition.protein}g</div>
-                        </div>
-                        <div className="bg-gray-50 p-1 rounded text-center">
-                          <div className="text-xs text-gray-600">カロリー</div>
-                          <div className="text-sm font-bold">{product.nutrition.calories}kcal</div>
-                        </div>
-                      </div>
-
-                      {/* Reviews */}
-                      <div className="flex items-center gap-1 mb-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                      {/* Reviews + Nutrition */}
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-0.5">
+                          <Star className="w-2.5 h-2.5 text-yellow-400 fill-current" />
                           <span className="text-xs font-medium">{product.reviewAverage}</span>
                         </div>
-                        <span className="text-gray-500 text-xs">({product.reviewCount}件)</span>
+                        <span className="text-xs text-blue-600 font-bold">{product.nutrition.protein}g</span>
                       </div>
 
                       {/* Purchase Button */}
@@ -219,9 +248,9 @@ export default function FeaturedProducts() {
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-1.5 rounded font-medium transition-colors text-xs"
+                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-1 rounded text-xs font-medium transition-colors"
                       >
-                        🛒 購入サイトへ
+                        🛒 購入
                       </a>
                     </div>
                   </div>
@@ -240,13 +269,22 @@ export default function FeaturedProducts() {
             <p className="text-gray-600 mb-6 max-w-lg mx-auto">
               5つの質問に答えるだけで、あなたの目的・体質・好みに100%マッチしたプロテインを提案します。
             </p>
-            <Link 
-              href="/simple-diagnosis"
-              className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-colors"
-            >
-              <span>🎯 無料診断を始める</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/simple-diagnosis"
+                className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-colors"
+              >
+                <span>🎯 無料診断を始める</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link 
+                href="/products"
+                className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-blue-600 border border-blue-600 font-bold py-4 px-8 rounded-xl transition-colors"
+              >
+                <span>📦 全商品を見る</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
