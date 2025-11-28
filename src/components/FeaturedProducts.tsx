@@ -144,11 +144,11 @@ export default function FeaturedProducts() {
               </div>
 
               {/* Products Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {category.products.map((product) => (
-                  <div key={product.id} className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div key={product.id} className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
                     {/* Product Image */}
-                    <div className="relative aspect-square bg-gray-100">
+                    <div className="relative h-40 bg-gray-100">
                       {product.imageUrl ? (
                         <img
                           src={product.imageUrl}
@@ -165,64 +165,59 @@ export default function FeaturedProducts() {
                       )}
                       
                       {/* Category Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className={`px-3 py-1 text-xs font-bold text-white rounded-full ${categoryColors[product.category as keyof typeof categoryColors]}`}>
+                      <div className="absolute top-2 left-2">
+                        <span className={`px-2 py-1 text-xs font-bold text-white rounded ${categoryColors[product.category as keyof typeof categoryColors]}`}>
                           {product.type}
                         </span>
                       </div>
 
                       {/* Brand Badge */}
-                      <div className="absolute top-3 right-3">
-                        <span className="px-2 py-1 text-xs font-medium bg-white/90 text-gray-700 rounded-full">
+                      <div className="absolute top-2 right-2">
+                        <span className="px-2 py-1 text-xs font-medium bg-white/90 text-gray-700 rounded">
                           {product.brand}
                         </span>
                       </div>
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-6">
+                    <div className="p-3">
                       {/* Product Name */}
-                      <h4 className="font-bold text-gray-900 mb-3 line-clamp-2 text-lg group-hover:text-blue-600 transition-colors">
-                        {product.name.length > 60 ? product.name.substring(0, 60) + '...' : product.name}
+                      <h4 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm group-hover:text-blue-600 transition-colors">
+                        {product.name.length > 40 ? product.name.substring(0, 40) + '...' : product.name}
                       </h4>
 
                       {/* Price */}
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-gray-900">
+                      <div className="mb-3">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-lg font-bold text-gray-900">
                             ¥{product.pricePerServing}
                           </span>
-                          <span className="text-sm text-gray-600">/食</span>
+                          <span className="text-xs text-gray-600">/食</span>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          本体価格: ¥{product.price.toLocaleString()}
+                        <div className="text-xs text-gray-500">
+                          ¥{product.price.toLocaleString()}
                         </div>
                       </div>
 
                       {/* Nutrition */}
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-blue-50 p-3 rounded-lg text-center">
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="bg-blue-50 p-2 rounded text-center">
                           <div className="text-xs text-gray-600">タンパク質</div>
-                          <div className="font-bold text-blue-600">{product.nutrition.protein}g</div>
+                          <div className="text-sm font-bold text-blue-600">{product.nutrition.protein}g</div>
                         </div>
-                        <div className="bg-gray-50 p-3 rounded-lg text-center">
+                        <div className="bg-gray-50 p-2 rounded text-center">
                           <div className="text-xs text-gray-600">カロリー</div>
-                          <div className="font-bold">{product.nutrition.calories}kcal</div>
+                          <div className="text-sm font-bold">{product.nutrition.calories}kcal</div>
                         </div>
                       </div>
 
                       {/* Reviews */}
-                      <div className="flex items-center gap-2 mb-6">
+                      <div className="flex items-center gap-1 mb-3">
                         <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="font-medium">{product.reviewAverage}</span>
+                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                          <span className="text-sm font-medium">{product.reviewAverage}</span>
                         </div>
-                        <span className="text-gray-500 text-sm">({product.reviewCount}件)</span>
-                      </div>
-
-                      {/* Shop Info */}
-                      <div className="text-xs text-gray-500 mb-4">
-                        販売店: {product.shopName}
+                        <span className="text-gray-500 text-xs">({product.reviewCount}件)</span>
                       </div>
 
                       {/* Purchase Button */}
@@ -230,7 +225,7 @@ export default function FeaturedProducts() {
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full bg-red-600 hover:bg-red-700 text-white text-center py-3 px-4 rounded-xl font-medium transition-colors"
+                        className="block w-full bg-red-600 hover:bg-red-700 text-white text-center py-2 rounded font-medium transition-colors text-sm"
                       >
                         🛒 楽天で購入
                       </a>

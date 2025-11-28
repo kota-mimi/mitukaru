@@ -289,7 +289,7 @@ function processRakutenProduct(product: any, filters: SearchFilters) {
       price: price,
       pricePerServing: pricePerServing,
       shopName: product.shopName || '',
-      affiliateUrl: product.affiliateUrl || product.itemUrl,
+      affiliateUrl: generateRakutenAffiliateUrl(product.itemUrl, process.env.RAKUTEN_AFFILIATE_ID),
       stock: {
         status: '在庫あり', // 楽天APIからは詳細な在庫情報が取得できないため
         quantity: 50,
@@ -311,7 +311,7 @@ function processRakutenProduct(product: any, filters: SearchFilters) {
       price: price,
       pricePerServing: pricePerServing,
       shopName: product.shopName || '',
-      affiliateUrl: product.affiliateUrl || product.itemUrl,
+      affiliateUrl: generateRakutenAffiliateUrl(product.itemUrl, process.env.RAKUTEN_AFFILIATE_ID),
       stock: {
         status: '在庫あり',
         quantity: 50,
@@ -415,6 +415,19 @@ function isValidProteinProduct(product: any, filters: SearchFilters): boolean {
   const reasonablePrice = product.platforms[0].pricePerServing >= 50 && product.platforms[0].pricePerServing <= 500
   
   return hasProteinKeyword && !hasExcludeKeyword && hasAdequateProtein && reasonablePrice
+}
+
+// 楽天アフィリエイトURL生成
+function generateRakutenAffiliateUrl(itemUrl: string, affiliateId?: string): string {
+  if (!affiliateId) return itemUrl
+  
+  try {
+    const url = new URL(itemUrl)
+    url.searchParams.set('rafID', affiliateId)
+    return url.toString()
+  } catch {
+    return itemUrl
+  }
 }
 
 // 商品スコア計算
