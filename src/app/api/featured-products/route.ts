@@ -48,14 +48,18 @@ export async function GET() {
 
     // 多様な検索クエリで最大商品を取得
     const searches = [
-      { query: 'プロテイン ホエイ', category: 'whey', hits: 30 },
-      { query: 'ホエイプロテイン', category: 'whey', hits: 30 },
-      { query: 'WPC プロテイン', category: 'whey', hits: 20 },
-      { query: 'WPI プロテイン', category: 'whey', hits: 20 },
-      { query: 'プロテイン ソイ', category: 'soy', hits: 30 },
-      { query: 'ソイプロテイン', category: 'soy', hits: 30 },
-      { query: '大豆プロテイン', category: 'soy', hits: 20 },
-      { query: 'プロテイン 植物性', category: 'soy', hits: 20 }
+      { query: 'プロテイン ホエイ', category: 'whey', hits: 100 },
+      { query: 'ホエイプロテイン', category: 'whey', hits: 100 },
+      { query: 'WPC プロテイン', category: 'whey', hits: 100 },
+      { query: 'WPI プロテイン', category: 'whey', hits: 100 },
+      { query: 'プロテイン ソイ', category: 'soy', hits: 100 },
+      { query: 'ソイプロテイン', category: 'soy', hits: 100 },
+      { query: '大豆プロテイン', category: 'soy', hits: 100 },
+      { query: 'プロテイン 植物性', category: 'soy', hits: 100 },
+      { query: 'カゼインプロテイン', category: 'whey', hits: 50 },
+      { query: 'ピープロテイン', category: 'soy', hits: 50 },
+      { query: 'プロテイン 筋トレ', category: 'whey', hits: 100 },
+      { query: 'プロテイン ダイエット', category: 'soy', hits: 100 }
     ]
 
     console.log('📊 複数クエリで楽天API検索開始...')
