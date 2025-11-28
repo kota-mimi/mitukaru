@@ -237,6 +237,19 @@ async function searchRakutenAPI(filters: SearchFilters) {
       itemsLength: data.Items?.length || 0,
       firstItemStructure: data.Items?.[0] ? Object.keys(data.Items[0]) : 'none'
     })
+
+    // 画像デバッグ: 最初の商品の画像構造を詳しく確認
+    if (data.Items && data.Items[0]) {
+      const firstProduct = data.Items[0]
+      console.log('🖼️ 画像デバッグ - 商品:', firstProduct.itemName?.substring(0, 50), {
+        mediumImageUrls: firstProduct.mediumImageUrls,
+        smallImageUrls: firstProduct.smallImageUrls,
+        hasImages: {
+          medium: !!firstProduct.mediumImageUrls,
+          small: !!firstProduct.smallImageUrls
+        }
+      })
+    }
     
     if (!data.Items || data.Items.length === 0) {
       console.log('⚠️ 楽天APIで商品が見つかりませんでした')
@@ -285,7 +298,26 @@ function processRakutenProduct(product: any, filters: SearchFilters) {
     id: `rakuten_${product.itemCode}`,
     name: itemName,
     brand: extractBrandFromName(itemName),
-    imageUrl: product.mediumImageUrls?.[0]?.imageUrl || product.smallImageUrls?.[0]?.imageUrl || '',
+    imageUrl: (() => {
+      const mediumUrl = product.mediumImageUrls?.[0]?.imageUrl
+      const smallUrl = product.smallImageUrls?.[0]?.imageUrl
+      const directMedium = product.mediumImageUrls?.[0]
+      const directSmall = product.smallImageUrls?.[0]
+      const finalUrl = mediumUrl || smallUrl || directMedium || directSmall || ''
+      
+      console.log('🔍 画像URL生成デバッグ:', {
+        productName: product.itemName?.substring(0, 30),
+        mediumArray: product.mediumImageUrls,
+        smallArray: product.smallImageUrls,
+        mediumUrl,
+        smallUrl,
+        directMedium,
+        directSmall,
+        finalUrl
+      })
+      
+      return finalUrl
+    })(),
     reviewAverage: parseFloat(product.reviewAverage) || 0,
     reviewCount: product.reviewCount || 0,
     description: description.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
