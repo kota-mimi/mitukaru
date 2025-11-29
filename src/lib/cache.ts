@@ -1,34 +1,32 @@
-import fs from 'fs/promises'
-import path from 'path'
+import { kv } from '@vercel/kv'
 
-const CACHE_DIR = path.join(process.cwd(), 'cache')
-const FEATURED_PRODUCTS_CACHE = path.join(CACHE_DIR, 'featured-products.json')
+const CACHE_KEY = 'featured-products'
+const CACHE_TIMESTAMP_KEY = 'featured-products-timestamp'
 
-// キャッシュディレクトリが存在しない場合は作成
-export async function ensureCacheDir() {
+// Vercel KVに商品データを保存
+export async function saveFeaturedProductsCache(data: any) {
   try {
-    await fs.access(CACHE_DIR)
-  } catch {
-    await fs.mkdir(CACHE_DIR, { recursive: true })
+    await kv.set(CACHE_KEY, JSON.stringify(data))
+    await kv.set(CACHE_TIMESTAMP_KEY, Date.now())
+    console.log('✅ 人気商品キャッシュを保存しました (Vercel KV):', new Date().toLocaleString('ja-JP'))
+  } catch (error) {
+    console.error('❌ キャッシュ保存エラー:', error)
+    throw error
   }
 }
 
-// キャッシュファイルに商品データを保存
-export async function saveFeaturedProductsCache(data: any) {
-  await ensureCacheDir()
-  await fs.writeFile(FEATURED_PRODUCTS_CACHE, JSON.stringify(data, null, 2), 'utf8')
-  console.log('✅ 人気商品キャッシュを保存しました:', new Date().toLocaleString('ja-JP'))
-}
-
-// キャッシュファイルから商品データを読み込み
+// Vercel KVから商品データを読み込み
 export async function loadFeaturedProductsCache() {
   try {
-    const data = await fs.readFile(FEATURED_PRODUCTS_CACHE, 'utf8')
-    const parsed = JSON.parse(data)
-    console.log('✅ 人気商品キャッシュを読み込みました:', new Date().toLocaleString('ja-JP'))
-    return parsed
+    const data = await kv.get(CACHE_KEY)
+    if (data) {
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data
+      console.log('✅ 人気商品キャッシュを読み込みました (Vercel KV):', new Date().toLocaleString('ja-JP'))
+      return parsed
+    }
+    return null
   } catch (error) {
-    console.log('⚠️ キャッシュファイルが見つかりません。初回取得します。')
+    console.log('⚠️ キャッシュが見つかりません。初回取得します。')
     return null
   }
 }
@@ -36,10 +34,13 @@ export async function loadFeaturedProductsCache() {
 // キャッシュの有効性をチェック（24時間以内かどうか）
 export async function isCacheValid() {
   try {
-    const stats = await fs.stat(FEATURED_PRODUCTS_CACHE)
-    const cacheAge = Date.now() - stats.mtime.getTime()
-    const maxAge = 24 * 60 * 60 * 1000 // 24時間
-    return cacheAge < maxAge
+    const timestamp = await kv.get(CACHE_TIMESTAMP_KEY)
+    if (timestamp) {
+      const cacheAge = Date.now() - Number(timestamp)
+      const maxAge = 24 * 60 * 60 * 1000 // 24時間
+      return cacheAge < maxAge
+    }
+    return false
   } catch {
     return false
   }
