@@ -88,8 +88,8 @@ export const AIDiagnosisModal: React.FC<AIDiagnosisModalProps> = ({ isOpen, onCl
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <div className="flex items-center gap-2">
-            <Sparkles className="text-blue-600 w-5 h-5 animate-pulse" />
-            <h2 className="text-xl font-bold text-slate-800 tracking-wide">AI プロテイン診断</h2>
+            <Sparkles className="text-primary w-5 h-5 animate-pulse" />
+            <h2 className="text-xl font-bold text-secondary tracking-wide">AI プロテイン診断</h2>
           </div>
           <button onClick={reset} className="text-slate-400 hover:text-slate-700">
             <X className="w-6 h-6" />
@@ -101,19 +101,19 @@ export const AIDiagnosisModal: React.FC<AIDiagnosisModalProps> = ({ isOpen, onCl
           {isAnalyzing ? (
             <div className="flex flex-col items-center justify-center h-64 space-y-6 text-center">
               <div className="relative">
-                <div className="w-16 h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
-                <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600 w-6 h-6" />
+                <div className="w-16 h-16 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+                <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">AIが分析中...</h3>
+                <h3 className="text-xl font-bold text-secondary mb-2">AIが分析中...</h3>
                 <p className="text-slate-500">あなたのライフスタイルに最適な配合を計算しています</p>
               </div>
             </div>
           ) : result ? (
             <div className="space-y-6">
               <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl">
-                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                  <Check className="w-5 h-5 mr-2 text-blue-600" />
+                <h3 className="text-lg font-bold text-secondary mb-4 flex items-center">
+                  <Check className="w-5 h-5 mr-2 text-primary" />
                   診断結果レポート
                 </h3>
                 <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{result}</p>
@@ -134,13 +134,13 @@ export const AIDiagnosisModal: React.FC<AIDiagnosisModalProps> = ({ isOpen, onCl
                 </div>
                 <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                   <div 
-                    className="bg-blue-600 h-full transition-all duration-500 ease-out shadow-sm"
+                    className="bg-primary h-full transition-all duration-500 ease-out shadow-sm"
                     style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
                   ></div>
                 </div>
               </div>
 
-              <h3 className="text-2xl font-bold text-slate-800 mb-8 text-center leading-relaxed">
+              <h3 className="text-2xl font-bold text-secondary mb-8 text-center leading-relaxed">
                 {QUESTIONS[step].text}
               </h3>
 
@@ -149,7 +149,7 @@ export const AIDiagnosisModal: React.FC<AIDiagnosisModalProps> = ({ isOpen, onCl
                   <button
                     key={option}
                     onClick={() => handleAnswer(option)}
-                    className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 font-medium text-left flex items-center justify-between group shadow-sm hover:shadow-md"
+                    className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 font-medium text-left flex items-center justify-between group shadow-sm hover:shadow-md"
                   >
                     {option}
                     <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-white" />

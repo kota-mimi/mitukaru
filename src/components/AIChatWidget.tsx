@@ -70,7 +70,7 @@ export const AIChatWidget: React.FC = () => {
       {isOpen && (
         <div className="mb-4 w-[350px] md:w-[400px] h-[500px] bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up ring-1 ring-slate-100">
           {/* Header (Indigo) */}
-          <div className="bg-blue-600 p-4 border-b border-blue-700 flex justify-between items-center shadow-md z-10">
+          <div className="bg-primary p-4 border-b border-primaryDark flex justify-between items-center shadow-md z-10">
             <div className="flex items-center space-x-2">
               <div className="bg-white/20 p-1.5 rounded-full">
                 <Bot className="w-5 h-5 text-white" />
@@ -98,8 +98,8 @@ export const AIChatWidget: React.FC = () => {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                     msg.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                      : 'bg-white text-slate-800 rounded-tl-none font-medium border border-slate-200'
+                      ? 'bg-primary text-white rounded-tr-none font-medium'
+                      : 'bg-white text-secondary rounded-tl-none font-medium border border-slate-200'
                   }`}
                 >
                   {msg.text}
@@ -109,7 +109,7 @@ export const AIChatWidget: React.FC = () => {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 border border-slate-200 shadow-sm">
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 </div>
               </div>
             )}
@@ -125,12 +125,12 @@ export const AIChatWidget: React.FC = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="質問を入力..."
-                className="flex-1 bg-slate-50 text-slate-800 text-sm rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-blue-600 border border-slate-200 placeholder-slate-400"
+                className="flex-1 bg-slate-50 text-secondary text-sm rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-primary border border-slate-200 placeholder-slate-400"
               />
               <button
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
+                className="bg-primary hover:bg-primaryDark text-white p-2 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
               >
                 <Send className="w-5 h-5" />
               </button>
@@ -142,14 +142,14 @@ export const AIChatWidget: React.FC = () => {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-blue-600/30 transition-all duration-300 ${
-          isOpen ? 'bg-slate-600 rotate-90' : 'bg-blue-600 hover:bg-white hover:text-blue-600 hover:scale-110'
+        className={`group flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-primary/30 transition-all duration-300 ${
+          isOpen ? 'bg-slate-600 rotate-90' : 'bg-primary hover:bg-white hover:text-primary hover:scale-110'
         }`}
       >
         {isOpen ? (
           <X className="w-6 h-6 text-white" />
         ) : (
-          <MessageSquare className="w-6 h-6 text-white group-hover:text-blue-600" />
+          <MessageSquare className="w-6 h-6 text-white group-hover:text-primary" />
         )}
       </button>
     </div>

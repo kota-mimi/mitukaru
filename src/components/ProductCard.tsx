@@ -24,7 +24,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
 
   return (
     <div 
-      className="group relative bg-white border border-slate-200 rounded-lg overflow-hidden hover:border-blue-600/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/10 flex flex-col h-full cursor-pointer"
+      className="group relative bg-white border border-slate-200 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col h-full cursor-pointer"
       onClick={() => onOpenDetail && onOpenDetail(product)}
     >
       
@@ -40,8 +40,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
         onClick={(e) => { e.stopPropagation(); onSave(product); }}
         className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-colors shadow-sm ${
           isSaved 
-            ? 'bg-white text-blue-600 shadow-blue-600/20' 
-            : 'bg-white/90 text-slate-400 hover:text-blue-600 hover:bg-white'
+            ? 'bg-white text-primary shadow-primary/20' 
+            : 'bg-white/90 text-slate-400 hover:text-primary hover:bg-white'
         }`}
       >
         <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
@@ -74,7 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
           <span className="text-xs text-slate-400">({product.reviews})</span>
         </div>
 
-        <h3 className="text-base font-bold text-slate-800 mb-2 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors min-h-[3em]">
+        <h3 className="text-base font-bold text-slate-800 mb-2 leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[3em]">
           {product.name}
         </h3>
 
@@ -92,7 +92,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
 
         <div className="mt-auto pt-2 flex flex-col gap-2">
           {/* Analysis Link */}
-          <div className="text-[10px] text-center text-slate-300 group-hover:text-blue-600 transition-colors flex items-center justify-center gap-0.5 mb-1">
+          <div className="text-[10px] text-center text-slate-300 group-hover:text-primary transition-colors flex items-center justify-center gap-0.5 mb-1">
              <Info className="w-3 h-3" />
              詳細・成分分析
           </div>
@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
                 href={shop.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-1 pl-2 rounded bg-white border border-slate-200 hover:border-blue-600/50 transition-all group/btn shadow-sm"
+                className="flex items-center justify-between p-1 pl-2 rounded bg-white border border-slate-200 hover:border-primary/50 transition-all group/btn shadow-sm"
               >
                  <div className="flex items-center gap-1.5">
                     <div className={`w-1.5 h-1.5 rounded-full ${
@@ -121,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSave, isSav
                  {/* Price Text: Dark text for visibility */}
                  <div className="flex items-center gap-1 px-2 py-0.5 font-mono font-bold text-xs leading-none text-slate-900">
                     ¥{shop.price.toLocaleString()}
-                    <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/btn:opacity-100 group-hover/btn:text-blue-600" />
+                    <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/btn:opacity-100 group-hover/btn:text-primary" />
                  </div>
               </a>
             ))}
