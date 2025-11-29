@@ -125,7 +125,7 @@ export default function GeminiPage() {
         const flatProducts = data.categories.flatMap((cat: any) => 
           cat.products.map((product: any) => ({
             ...product,
-            categoryName: cat.categoryName,
+            categoryName: cat.name,
             category: cat.category, // Add category field for filtering
             // Map API field names to frontend expected names
             image: product.imageUrl,
