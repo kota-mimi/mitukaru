@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
                   <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
                        <FlaskConical size={18} />
                   </div>
-                  <span className="font-bold text-lg text-gray-900">ProteinMatch</span>
+                  <span className="font-bold text-lg text-gray-900">MITSUKERU</span>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed max-w-sm">
                   AIがあなたに最適なプロテインをご提案。
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-gray-100 pt-8 text-center">
           <p className="text-xs text-gray-400">
-              &copy; {new Date().getFullYear()} ProteinMatch. All rights reserved.
+              &copy; {new Date().getFullYear()} MITSUKERU. All rights reserved.
           </p>
         </div>
       </div>
