@@ -42,7 +42,12 @@ export async function GET(request: NextRequest) {
     
     // プロテイン商品データを整形
     const proteins = data.Items?.map((item: any) => {
-      const product = item.Item
+      const product = item.Item || item // 楽天APIの構造に対応
+      
+      if (!product || !product.itemCode) {
+        console.warn('商品データが不正:', item)
+        return null
+      }
       
       return {
         id: product.itemCode,
@@ -67,11 +72,11 @@ export async function GET(request: NextRequest) {
         source: 'rakuten',
         lastUpdated: new Date().toISOString()
       }
-    }) || []
+    }).filter(Boolean) || [] // null値を除外
 
     // プロテイン関連商品のみフィルタリング
     const filteredProteins = proteins.filter((protein: any) => 
-      isProteinProduct(protein.name)
+      protein && isProteinProduct(protein.name)
     )
 
     return NextResponse.json({
