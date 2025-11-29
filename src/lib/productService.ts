@@ -9,8 +9,8 @@ export async function fetchProducts(options: {
   try {
     const { keyword = 'プロテイン', category = 'ALL', page = 1 } = options;
     
-    // 楽天APIから商品データを取得
-    const response = await fetch(`/api/rakuten-test?keyword=${encodeURIComponent(keyword)}&page=${page}`);
+    // 楽天APIから商品データを取得  
+    const response = await fetch(`/api/rakuten?keyword=${encodeURIComponent(keyword)}&page=${page}`);
     
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
