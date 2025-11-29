@@ -308,7 +308,7 @@ export default function GeminiPage() {
 
           {/* AI診断結果の推薦商品セクション */}
           {showRecommendations && (
-            <section id="recommendations" className="container mx-auto px-4 py-8 bg-gradient-to-br from-blue-50 to-slate-50 border-b border-slate-100">
+            <section id="recommendations" className="container mx-auto px-4 py-8 bg-gradient-to-br from-orange-50 to-amber-50 border-b border-slate-100">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
                   <Sparkles className="w-4 h-4 text-primary" />
