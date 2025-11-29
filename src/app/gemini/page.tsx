@@ -125,7 +125,14 @@ export default function GeminiPage() {
         const flatProducts = data.categories.flatMap((cat: any) => 
           cat.products.map((product: any) => ({
             ...product,
-            categoryName: cat.categoryName
+            categoryName: cat.categoryName,
+            category: cat.category, // Add category field for filtering
+            // Map API field names to frontend expected names
+            image: product.imageUrl,
+            rating: product.reviewAverage || 0,
+            protein: product.nutrition?.protein || product.protein || 20,
+            calories: product.nutrition?.calories || product.calories || 110,
+            reviews: product.reviewCount || 0
           }))
         );
         
@@ -644,13 +651,17 @@ export default function GeminiPage() {
                         onChange={(e) => setSelectedCategory(e.target.value)}
                       >
                         <option value="ALL">すべてのカテゴリ</option>
+                        <option value="ranking_overall">人気ランキング総合</option>
+                        <option value="cospa_ranking">コスパ最強ランキング</option>
+                        <option value="high_rating">高評価プロテイン</option>
                         <option value="whey">ホエイプロテイン</option>
                         <option value="soy">ソイプロテイン</option>
                         <option value="casein">カゼインプロテイン</option>
                         <option value="wpi">WPIプロテイン</option>
-                        <option value="diet">ダイエット用</option>
-                        <option value="muscle">筋トレ用</option>
-                        <option value="budget">コスパ重視</option>
+                        <option value="all_protein">プロテイン総合ランキング</option>
+                        <option value="savas">ザバス（SAVAS）</option>
+                        <option value="dns">DNS プロテイン</option>
+                        <option value="belegend">ビーレジェンド</option>
                       </select>
                     </div>
 
@@ -712,7 +723,7 @@ export default function GeminiPage() {
                     } else if (sortBy === 'PRICE_DESC') {
                       filteredProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
                     } else if (sortBy === 'RATING') {
-                      filteredProducts.sort((a, b) => b.rating - a.rating);
+                      filteredProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
                     }
                     
                     return filteredProducts.map((product) => (
@@ -749,7 +760,7 @@ export default function GeminiPage() {
 
                           <div className="mb-3">
                             <div className="text-lg font-bold text-gray-900">¥{(product.price || 0).toLocaleString()}</div>
-                            <div className="text-xs text-gray-500">1回分 ¥{Math.round((product.price || 0) / 30)}</div>
+                            <div className="text-xs text-gray-500">1回分 ¥{product.pricePerServing || Math.round((product.price || 0) / 30)}</div>
                           </div>
 
                           <button
