@@ -234,7 +234,7 @@ async function categorizeProductsWithAI(products: any[]) {
   ]
   
   // ブランド別カテゴリを動的生成
-  const brandCounts = {}
+  const brandCounts: { [key: string]: number } = {}
   products.forEach(product => {
     const brand = product.brand
     if (brand && brand !== 'その他') {
