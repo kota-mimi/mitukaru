@@ -72,8 +72,8 @@ export default function GeminiPage() {
     const loadInitialProducts = async () => {
       try {
         setIsLoading(true);
-        const products = await searchRakutenProducts('プロテイン');
-        setRecommendedProducts(products.slice(0, 20));
+        const products = await searchRakutenProducts('プロテイン', 3); // 3ページ取得
+        setRecommendedProducts(products.slice(0, 30)); // 30商品表示
         console.log('✅ 初期商品データを楽天APIから読み込み:', products.length, '商品');
       } catch (error) {
         console.error('❌ 初期データ読み込みエラー:', error);
@@ -135,7 +135,33 @@ export default function GeminiPage() {
     try {
       setIsLoadingAllProducts(true);
       
-      // 楽天APIから直接プロテイン商品を検索
+      // 複数キーワードで検索して網羅的にデータ取得
+      const keywords = ['プロテイン', 'ホエイプロテイン', 'ソイプロテイン'];
+      let allProducts: any[] = [];
+      
+      for (const keyword of keywords) {
+        const products = await searchRakutenProducts(keyword, 3);
+        allProducts.push(...products);
+        
+        // API制限回避のため少し待機
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      // 重複除去（商品IDベース）
+      const uniqueProducts = allProducts.filter((product, index, self) => 
+        index === self.findIndex(p => p.id === product.id)
+      );
+      
+      console.log(`🎯 複数キーワード検索完了: ${uniqueProducts.length}商品（重複除去後）`);
+      
+      if (uniqueProducts.length > 0) {
+        setAllProducts(uniqueProducts);
+        setShowAllProducts(true);
+        console.log(`✅ 楽天から商品データを読み込み:`, uniqueProducts.length, '商品');
+        return;
+      }
+      
+      // 上記が失敗した場合の従来のフォールバック処理
       const rakutenResponse = await fetch('/api/rakuten?keyword=プロテイン&page=1');
       
       if (!rakutenResponse.ok) {
@@ -273,34 +299,64 @@ export default function GeminiPage() {
     return tags;
   };
 
-  // 楽天APIから商品検索（共通関数）
-  const searchRakutenProducts = async (keyword: string) => {
+  // 楽天APIから商品検索（複数ページ対応）
+  const searchRakutenProducts = async (keyword: string, maxPages = 3) => {
+    const allProducts = [];
+    
     try {
-      const response = await fetch(`/api/rakuten?keyword=${encodeURIComponent(keyword)}&page=1`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.products) {
-          return data.products.map((product: any) => ({
-            ...product,
-            categoryName: 'プロテイン商品',
-            category: 'PROTEIN',
-            image: product.imageUrl || '/placeholder-protein.svg',
-            rating: product.reviewAverage || 0,
-            reviews: product.reviewCount || 0,
-            tags: ['楽天', ...extractProteinTags(product.name)].filter(Boolean),
-            description: product.description || '',
-            shops: [{
-              name: 'Rakuten' as const,
-              price: product.price || 0,
-              url: product.affiliateUrl || '#'
-            }]
-          }));
+      console.log(`🔍 楽天検索開始: "${keyword}" (最大${maxPages}ページ)`);
+      
+      // 複数ページから商品を取得
+      for (let page = 1; page <= maxPages; page++) {
+        try {
+          const response = await fetch(`/api/rakuten?keyword=${encodeURIComponent(keyword)}&page=${page}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.products && data.products.length > 0) {
+              const mappedProducts = data.products.map((product: any) => ({
+                ...product,
+                categoryName: 'プロテイン商品',
+                category: 'PROTEIN',
+                image: product.imageUrl || '/placeholder-protein.svg',
+                rating: product.reviewAverage || 0,
+                reviews: product.reviewCount || 0,
+                tags: ['楽天', ...extractProteinTags(product.name)].filter(Boolean),
+                description: product.description || '',
+                shops: [{
+                  name: 'Rakuten' as const,
+                  price: product.price || 0,
+                  url: product.affiliateUrl || '#'
+                }]
+              }));
+              
+              allProducts.push(...mappedProducts);
+              console.log(`📦 ページ${page}: ${data.products.length}商品取得 (累計${allProducts.length}商品)`);
+              
+              // 少し間隔を空けてAPI制限を回避
+              if (page < maxPages) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+            } else {
+              console.log(`⚠️ ページ${page}: データなし、検索終了`);
+              break;
+            }
+          } else {
+            console.warn(`⚠️ ページ${page}: API呼び出し失敗 (${response.status})`);
+            break;
+          }
+        } catch (pageError) {
+          console.error(`❌ ページ${page}取得エラー:`, pageError);
+          break;
         }
       }
+      
+      console.log(`✅ 楽天検索完了: ${allProducts.length}商品取得`);
+      return allProducts;
+      
     } catch (error) {
       console.error('楽天検索エラー:', error);
+      return [];
     }
-    return [];
   };
 
   // Quick Filter Tabs Logic
@@ -310,8 +366,10 @@ export default function GeminiPage() {
       label: '人気ランキング', 
       apply: async () => {
         setIsLoading(true);
-        const products = await searchRakutenProducts('プロテイン 人気');
-        setRecommendedProducts(products.slice(0, 20));
+        const products = await searchRakutenProducts('プロテイン 人気', 5); // 5ページ取得
+        // 評価順でソート
+        const sortedProducts = products.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
+        setRecommendedProducts(sortedProducts.slice(0, 50));
         setSortBy('RATING');
         setSelectedCategory('ALL');
         setSearchQuery('');
@@ -325,10 +383,10 @@ export default function GeminiPage() {
       label: 'コスパ最強', 
       apply: async () => {
         setIsLoading(true);
-        const products = await searchRakutenProducts('プロテイン 激安');
-        // 価格でソート
+        const products = await searchRakutenProducts('プロテイン 激安', 5); // 5ページ取得
+        // 価格でソート（安い順）
         const sortedProducts = products.sort((a: any, b: any) => (a.price || 99999) - (b.price || 99999));
-        setRecommendedProducts(sortedProducts.slice(0, 20));
+        setRecommendedProducts(sortedProducts.slice(0, 50));
         setSortBy('PRICE_ASC');
         setSelectedCategory('ALL');
         setSearchQuery('');
@@ -342,8 +400,8 @@ export default function GeminiPage() {
       label: 'セール中', 
       apply: async () => {
         setIsLoading(true);
-        const products = await searchRakutenProducts('プロテイン セール');
-        setRecommendedProducts(products.slice(0, 20));
+        const products = await searchRakutenProducts('プロテイン セール', 5); // 5ページ取得
+        setRecommendedProducts(products.slice(0, 50));
         setSearchQuery('セール');
         setSelectedCategory('ALL');
         setMinPrice('');
