@@ -298,7 +298,7 @@ function processRakutenProduct(item: any, search: any) {
     id: `rakuten_${item.itemCode}`,
     name: itemName,
     brand: extractBrandFromName(itemName),
-    imageUrl: item.mediumImageUrls?.[0] || item.smallImageUrls?.[0] || '',
+    imageUrl: getHighQualityImageUrl(item.mediumImageUrls?.[0] || item.smallImageUrls?.[0] || ''),
     reviewAverage: parseFloat(item.reviewAverage) || 0,
     reviewCount: item.reviewCount || 0,
     description: description.replace(/<[^>]*>/g, '').substring(0, 100) + '...',
@@ -332,6 +332,19 @@ function isValidProteinProduct(product: any): boolean {
   const reasonablePrice = product.pricePerServing >= 30 && product.pricePerServing <= 300
   
   return hasProteinKeyword && !hasExcludeKeyword && hasAdequateProtein && reasonablePrice
+}
+
+// 高品質画像URL取得（楽天の画像サイズを500x500に変更）
+function getHighQualityImageUrl(originalUrl: string): string {
+  if (!originalUrl) return '';
+  
+  // 楽天の画像URLの場合、サイズパラメータを変更
+  if (originalUrl.includes('thumbnail.image.rakuten.co.jp')) {
+    // ?_ex=128x128 を ?_ex=500x500 に変更
+    return originalUrl.replace(/\?_ex=\d+x\d+/, '?_ex=500x500');
+  }
+  
+  return originalUrl;
 }
 
 // ヘルパー関数群

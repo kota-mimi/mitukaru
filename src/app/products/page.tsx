@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { loadFeaturedProductsCache, isCacheValid } from '@/lib/cache'
 
 interface Product {
   id: string
@@ -50,23 +49,15 @@ export default function ProductsPage() {
     try {
       setLoading(true)
       
-      // まずキャッシュから読み込み
-      const cachedData = await loadFeaturedProductsCache()
-      const isValid = await isCacheValid()
+      // クライアントサイド用APIエンドポイントから取得
+      const response = await fetch('/api/products')
+      const data = await response.json()
       
-      if (cachedData && isValid) {
-        setCategories(cachedData.categories || [])
-        console.log('✅ キャッシュから商品データを読み込み:', cachedData.categories?.length || 0, 'カテゴリ')
+      if (data.success && data.categories) {
+        setCategories(data.categories)
+        console.log(`✅ 商品データを読み込み (${data.source}):`, data.categories.length, 'カテゴリ')
       } else {
-        // キャッシュが古い場合は楽天APIから直接取得
-        console.log('⏰ キャッシュが古いため、楽天APIから取得中...')
-        const response = await fetch('/api/update-cache?token=update-morning-8am')
-        const data = await response.json()
-        
-        if (data.success && data.categories) {
-          setCategories(data.categories)
-          console.log('✅ 楽天APIから商品データを取得:', data.categories.length, 'カテゴリ')
-        }
+        console.error('❌ 商品データ取得失敗:', data.error)
       }
     } catch (error) {
       console.error('❌ 商品データ取得エラー:', error)
