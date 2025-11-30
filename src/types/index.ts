@@ -28,10 +28,17 @@ export interface Product {
   price?: number;
   protein?: number;
   calories?: number;
+  servings?: number;
   pricePerServing?: number;
   shopName?: string;
   affiliateUrl?: string;
+  url?: string;
   categoryName?: string;
+  features?: {
+    protein?: number;
+    calories?: number;
+    servings?: number;
+  };
   
   // アフィリエイト・比較用データ
   shops?: ShopPrice[];
