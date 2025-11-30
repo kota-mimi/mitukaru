@@ -211,9 +211,45 @@ export async function GET(request: Request) {
     const rakutenAppId = process.env.RAKUTEN_APP_ID
     
     if (!rakutenAppId || rakutenAppId === 'your_rakuten_app_id_here') {
+      console.log('⚠️ 楽天API ID未設定 - フォールバックデータでキャッシュ初期化')
+      
+      // フォールバック用のサンプルデータでキャッシュを初期化
+      const fallbackCacheData = {
+        success: true,
+        categories: [{
+          category: 'whey',
+          categoryName: 'ホエイプロテイン',
+          products: [{
+            id: 'fallback_whey_001',
+            name: 'ザバス ホエイプロテイン100 リッチショコラ味',
+            brand: 'ザバス',
+            imageUrl: '/placeholder-protein.svg',
+            reviewAverage: 4.5,
+            reviewCount: 1500,
+            description: '本格的なホエイプロテイン100%。トレーニング後の栄養補給に最適。',
+            nutrition: { protein: 20, calories: 110, servings: 30, servingSize: 30 },
+            type: 'ホエイ',
+            flavor: 'チョコレート',
+            price: 4500,
+            pricePerServing: 150,
+            shopName: '楽天サンプル',
+            affiliateUrl: '#',
+            category: 'whey'
+          }]
+        }],
+        totalCategories: 1,
+        lastUpdated: new Date().toISOString(),
+        updateTime: 'フォールバック初期化'
+      }
+      
+      await saveFeaturedProductsCache(fallbackCacheData)
+      
       return NextResponse.json({
-        success: false,
-        error: '楽天APIが設定されていません'
+        success: true,
+        message: '楽天API未設定のためフォールバックデータでキャッシュを初期化しました',
+        categories: 1,
+        timestamp: new Date().toLocaleString('ja-JP'),
+        note: 'Vercel環境変数でRAKUTEN_APP_IDを設定してください'
       })
     }
 

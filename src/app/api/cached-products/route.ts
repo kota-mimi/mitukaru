@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server'
 import { loadFeaturedProductsCache } from '@/lib/cache'
 
+// フォールバック用のダミーデータ（本番環境で問題が発生した場合）
+const fallbackProducts = [
+  {
+    id: 'fallback_001',
+    name: 'ザバス ホエイプロテイン100 リッチショコラ味 980g',
+    description: 'ホエイプロテイン100%使用。アスリートのカラダづくりをサポート。',
+    image: '/placeholder-protein.svg',
+    category: 'WHEY',
+    rating: 4.5,
+    reviews: 1000,
+    tags: ['フォールバック', '緊急用'],
+    price: 4500,
+    protein: 20,
+    calories: 110,
+    servings: 30,
+    shops: [{ name: 'Rakuten' as const, price: 4500, url: '#' }]
+  }
+]
+
 // キャッシュされた商品データを返すAPI（フロントエンド用）
 export async function GET() {
   try {
@@ -10,12 +29,15 @@ export async function GET() {
     const cacheData = await loadFeaturedProductsCache()
     
     if (!cacheData) {
-      console.log('⚠️ キャッシュデータが見つかりません')
+      console.log('⚠️ キャッシュデータが見つかりません - フォールバックデータを使用')
       return NextResponse.json({
-        success: false,
-        error: 'キャッシュデータが見つかりません。初回データ取得が必要です。',
-        message: '/api/update-cache を実行してください'
-      }, { status: 404 })
+        success: true,
+        products: fallbackProducts,
+        totalCount: fallbackProducts.length,
+        lastUpdated: new Date().toISOString(),
+        source: 'fallback',
+        message: 'キャッシュ未初期化 - フォールバックデータを表示中'
+      })
     }
 
     // キャッシュデータを統一形式に変換
