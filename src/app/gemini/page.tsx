@@ -171,6 +171,19 @@ export default function GeminiPage() {
         return;
       }
       
+      // フォールバック: 楽天API失敗時も基本のAPIを試す
+      console.log('⚠️ 楽天API検索結果が0件、基本検索を試行');
+      const basicResponse = await fetch('/api/rakuten?keyword=プロテイン&page=1');
+      if (basicResponse.ok) {
+        const basicData = await basicResponse.json();
+        if (basicData.success && basicData.products && basicData.products.length > 0) {
+          console.log('✅ 基本検索で商品取得:', basicData.products.length, '件');
+          setAllProducts(basicData.products);
+          setShowAllProducts(true);
+          return;
+        }
+      }
+      
       // 上記が失敗した場合の従来のフォールバック処理
       const rakutenResponse = await fetch('/api/rakuten?keyword=プロテイン&page=1');
       

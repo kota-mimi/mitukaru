@@ -62,8 +62,15 @@ export function isValidProteinProduct(itemName: string, description?: string): b
   // 重量の記載があることを確認（プロテイン粉末には通常重量表記がある）
   const hasWeight = /\d+(?:\.\d+)?(?:kg|g|キロ|グラム)/i.test(itemName);
   
-  // 絶対にプロテインのみ: プロテインキーワード必須 + 除外なし + 重量あり
-  return hasProtein && !hasExcluded && hasWeight;
+  // プロテイン商品判定: プロテインキーワード必須 + 除外なし（重量チェックは推奨）
+  const basicValidation = hasProtein && !hasExcluded;
+  
+  // デバッグログ
+  if (hasProtein && !hasExcluded && !hasWeight) {
+    console.log(`⚠️ 重量なし商品: ${itemName}`);
+  }
+  
+  return basicValidation;
 }
 
 // プロテイン種類抽出（統一版）
