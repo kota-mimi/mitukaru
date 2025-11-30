@@ -413,7 +413,10 @@ export default function GeminiPage() {
   };
 
   // Logic for filtering
-  let displayProducts = (activeTabId === 'ALL_PRODUCTS' ? allProducts : products).filter(p => {
+  const sourceProducts = (activeTabId === 'ALL_PRODUCTS' ? allProducts : products);
+  console.log(`🔍 フィルタリング開始: ソース商品数=${sourceProducts.length}, 選択カテゴリ=${selectedCategory}`);
+  
+  let displayProducts = sourceProducts.filter(p => {
     // 1. Search Query Filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -438,6 +441,8 @@ export default function GeminiPage() {
     return true;
   });
 
+  console.log(`🎯 フィルタリング結果: ${displayProducts.length}商品`);
+
   // Sorting Logic
   displayProducts.sort((a, b) => {
     const minPriceA = a.price || (a.shops && a.shops.length > 0 ? Math.min(...a.shops.map(s => s.price)) : 0);
@@ -454,7 +459,6 @@ export default function GeminiPage() {
     { id: 'CASEIN', label: 'カゼイン' },
     { id: 'VEGAN', label: 'ソイ/植物性' },
     { id: 'BCAA', label: 'アミノ酸' },
-    { id: 'ACCESSORIES', label: 'シェイカー等' },
   ];
 
   const navigateTo = (view: 'HOME' | 'GUIDE') => {
