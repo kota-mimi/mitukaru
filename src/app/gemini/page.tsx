@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Menu, Search, Dumbbell, Zap, TrendingUp, Filter, Sparkles, BookOpen, X, ChevronDown, ArrowUpDown, SlidersHorizontal, Trophy, Coins, Tag } from 'lucide-react';
+import { Menu, Search, Dumbbell, Zap, TrendingUp, Filter, Sparkles, BookOpen, X, ChevronDown, ChevronUp, ArrowUpDown, SlidersHorizontal, Trophy, Coins, Tag } from 'lucide-react';
 import { Product } from '@/types';
 import { ProductCard } from '@/components/ProductCard';
 import { AIChatWidget } from '@/components/AIChatWidget';
@@ -25,6 +25,7 @@ export default function GeminiPage() {
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [categoryExpanded, setCategoryExpanded] = useState(true);
   
   // UI States
   const [activeTabId, setActiveTabId] = useState<string>('POPULAR');
@@ -367,48 +368,14 @@ export default function GeminiPage() {
     }
   };
 
-  // Quick Filter Tabs Logic
-  const quickFilters = [
-    { 
-      id: 'POPULAR', 
-      label: '人気ランキング', 
-      apply: async () => {
-        setIsLoading(true);
-        setActiveTabId('POPULAR');
-        const products = await searchRakutenProducts('プロテイン', 5); // 5ページ取得
-        // 評価順でソート
-        const sortedProducts = products.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
-        setAllProducts(sortedProducts.slice(0, 50)); // allProductsに保存
-        setSortBy('RATING');
-        setSelectedCategory('ALL');
-        setSearchQuery('');
-        setMinPrice('');
-        setMaxPrice('');
-        setIsLoading(false);
-      }
-    },
-    { 
-      id: 'ALL_PRODUCTS', 
-      label: '全商品', 
-      apply: () => {
-        setActiveTabId('ALL_PRODUCTS');
-        setSortBy('RATING');
-        setSelectedCategory('ALL');
-        setSearchQuery('');
-        setMinPrice('');
-        setMaxPrice('');
-        if (allProducts.length === 0) {
-          // 非同期処理を安全に実行
-          loadAllProducts().catch((error) => {
-            console.error('全商品読み込みエラー:', error);
-          });
-        } else {
-          // 既にデータがある場合は表示フラグをON
-          setShowAllProducts(true);
-        }
-      }
+  // 最初から全商品を読み込み
+  useEffect(() => {
+    if (allProducts.length === 0) {
+      loadAllProducts().catch((error) => {
+        console.error('全商品読み込みエラー:', error);
+      });
     }
-  ];
+  }, []);
 
   const handleQuickFilter = async (id: string, applyFn: () => void | Promise<void>) => {
     setActiveTabId(id);
@@ -419,8 +386,8 @@ export default function GeminiPage() {
     }
   };
 
-  // Logic for filtering
-  const sourceProducts = (activeTabId === 'ALL_PRODUCTS' ? allProducts : products);
+  // Logic for filtering - 常にallProductsを使用
+  const sourceProducts = allProducts;
   console.log(`🔍 フィルタリング開始: ソース商品数=${sourceProducts.length}, 選択カテゴリ=${selectedCategory}`);
   
   let displayProducts = sourceProducts.filter(p => {
@@ -434,7 +401,10 @@ export default function GeminiPage() {
       if (!matchName && !matchDesc && !matchTags && !matchBrand) return false;
     }
 
-    // カテゴリフィルタリングは不要（直接検索するため）
+    // 2. Category Filter
+    if (selectedCategory !== 'ALL' && p.category !== selectedCategory) {
+      return false;
+    }
 
     // 3. Price Range Filter
     const productPrice = p.price || (p.shops && p.shops.length > 0 ? Math.min(...p.shops.map(s => s.price)) : 0);
@@ -588,27 +558,10 @@ export default function GeminiPage() {
           {/* Main Content Area */}
           <main id="ranking" className="container mx-auto px-4 py-8 bg-white min-h-[600px]">
             
-            {/* Quick Filters - Connected Tabs Style */}
-            <div className="mb-6 flex justify-center">
-               <div className="bg-white p-1 rounded-full border border-slate-200 shadow-sm inline-flex">
-                  {quickFilters.map((filter) => (
-                    <button
-                      key={filter.id}
-                      onClick={() => handleQuickFilter(filter.id, filter.apply)}
-                      className={`flex items-center px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
-                        activeTabId === filter.id 
-                          ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                          : 'text-slate-600 hover:text-primary hover:bg-slate-50'
-                      }`}
-                      disabled={isLoadingAllProducts && filter.id === 'ALL_PRODUCTS'}
-                    >
-                      {filter.label}
-                      {isLoadingAllProducts && filter.id === 'ALL_PRODUCTS' && (
-                        <span className="ml-2 w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></span>
-                      )}
-                    </button>
-                  ))}
-               </div>
+            {/* Page Title */}
+            <div className="mb-6 text-center">
+              <h1 className="text-2xl font-bold text-slate-800 mb-2">プロテイン商品一覧</h1>
+              <p className="text-slate-600">お気に入りのプロテインを見つけよう</p>
             </div>
 
             {/* Search & Advanced Filter Section */}
@@ -654,48 +607,35 @@ export default function GeminiPage() {
                     
                     {/* Column 1: Categories */}
                     <div>
-                      <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">カテゴリを選択</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {categories.map(cat => (
-                          <button
-                            key={cat.id}
-                            onClick={async () => {
-                              setSelectedCategory(cat.id);
-                              setActiveTabId('ALL_PRODUCTS'); // allProductsを表示するタブに切り替え
-                              
-                              // カテゴリに応じて適切なキーワードで商品を取得
-                              if (cat.id === 'VEGAN') {
-                                setIsLoading(true);
-                                const products = await searchRakutenProducts('ソイプロテイン', 3);
-                                setAllProducts(products);
-                                setIsLoading(false);
-                              } else if (cat.id === 'WHEY') {
-                                setIsLoading(true);
-                                const products = await searchRakutenProducts('ホエイプロテイン', 3);
-                                setAllProducts(products);
-                                setIsLoading(false);
-                              } else if (cat.id === 'CASEIN') {
-                                setIsLoading(true);
-                                const products = await searchRakutenProducts('カゼインプロテイン', 3);
-                                setAllProducts(products);
-                                setIsLoading(false);
-                              } else if (cat.id === 'ALL') {
-                                // 全てを選択した場合は全商品を読み込み
-                                if (allProducts.length === 0) {
-                                  loadAllProducts();
-                                }
-                              }
-                            }}
-                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                              selectedCategory === cat.id
-                                ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
-                                : 'bg-slate-100 text-secondary hover:bg-slate-200'
-                            }`}
-                          >
-                            {cat.label}
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => setCategoryExpanded(!categoryExpanded)}
+                        className="flex items-center justify-between w-full text-left mb-3"
+                      >
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">カテゴリを選択</h3>
+                        {categoryExpanded ? 
+                          <ChevronUp className="w-4 h-4 text-slate-400" /> : 
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
+                        }
+                      </button>
+                      {categoryExpanded && (
+                        <div className="flex flex-wrap gap-2">
+                          {categories.map(cat => (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                setSelectedCategory(cat.id);
+                              }}
+                              className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                                selectedCategory === cat.id
+                                  ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
+                                  : 'bg-slate-100 text-secondary hover:bg-slate-200'
+                              }`}
+                            >
+                              {cat.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Column 2: Price Range */}
@@ -806,7 +746,7 @@ export default function GeminiPage() {
             </div>
 
             {/* Product Grid - Compact 2 columns on Mobile, 5 on Large Screens */}
-            {isLoading || (isLoadingAllProducts && activeTabId === 'ALL_PRODUCTS') ? (
+            {isLoading || isLoadingAllProducts ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                 {[...Array(10)].map((_, index) => (
                   <div key={index} className="bg-white border border-slate-200 rounded-lg p-4 animate-pulse">
