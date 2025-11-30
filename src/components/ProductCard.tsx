@@ -82,19 +82,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
           {product.name}
         </h3>
 
-        {/* Specs Mini Table */}
-        <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 mb-3 bg-slate-50 p-2 rounded border border-slate-100">
-          {/* タンパク質を緑色に */}
-          <div>タンパク質: <span className="text-green-600 font-bold">
-            {product.protein ? `${product.protein}g` : (product.specs?.proteinRatio ? `${product.specs.proteinRatio}%` : '-')}
-          </span></div>
-          {/* コスパを赤色に */}
-          <div>コスパ: 
-            {pricePerProtein > 0 ? (
-               <span className="text-red-600 font-bold ml-1">¥{pricePerProtein}/g</span>
-            ) : <span className="text-slate-400">-</span>}
-          </div>
-        </div>
 
         <div className="mt-auto pt-2 flex flex-col gap-2">
           {/* Analysis Link */}
