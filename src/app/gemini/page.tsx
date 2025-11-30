@@ -27,6 +27,10 @@ export default function GeminiPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [categoryExpanded, setCategoryExpanded] = useState(true);
   
+  // Real-time search states
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  
   // UI States
   const [activeTabId, setActiveTabId] = useState<string>('POPULAR');
   const [isScrolled, setIsScrolled] = useState(false);
@@ -137,7 +141,12 @@ export default function GeminiPage() {
       setIsLoadingAllProducts(true);
       
       // 複数キーワードで検索して網羅的にデータ取得（プロテインのみ）
-      const keywords = ['プロテイン', 'ホエイプロテイン', 'ソイプロテイン', 'casein'];
+      const keywords = [
+        'プロテイン', 'ホエイプロテイン', 'ソイプロテイン', 'casein',
+        // 味系検索キーワード追加
+        'チョコ プロテイン', 'バニラ プロテイン', 'ストロベリー プロテイン', 
+        'ココア プロテイン', 'いちご プロテイン', 'バナナ プロテイン'
+      ];
       let allProducts: any[] = [];
       
       for (const keyword of keywords) {
@@ -296,9 +305,16 @@ export default function GeminiPage() {
     if (name.includes('wpi') || name.includes('アイソレート')) tags.push('高品質');
     if (name.includes('3kg') || name.includes('大容量')) tags.push('大容量');
     if (name.includes('1kg') && !name.includes('3kg')) tags.push('標準サイズ');
-    if (name.includes('チョコ') || name.includes('ココア')) tags.push('チョコ味');
-    if (name.includes('バニラ')) tags.push('バニラ味');
-    if (name.includes('ストロベリー') || name.includes('いちご')) tags.push('ストロベリー味');
+    
+    // 味情報を詳細に抽出
+    if (name.includes('チョコ') || name.includes('ココア') || name.includes('chocolate')) tags.push('チョコ味');
+    if (name.includes('バニラ') || name.includes('vanilla')) tags.push('バニラ味');
+    if (name.includes('ストロベリー') || name.includes('いちご') || name.includes('strawberry')) tags.push('ストロベリー味');
+    if (name.includes('バナナ') || name.includes('banana')) tags.push('バナナ味');
+    if (name.includes('抹茶') || name.includes('matcha')) tags.push('抹茶味');
+    if (name.includes('ミルク') || name.includes('milk')) tags.push('ミルク味');
+    if (name.includes('カフェオレ') || name.includes('coffee')) tags.push('コーヒー味');
+    if (name.includes('プレーン') || name.includes('無添加') || name.includes('plain')) tags.push('プレーン');
     
     return tags;
   };
@@ -368,6 +384,46 @@ export default function GeminiPage() {
     }
   };
 
+  // リアルタイム検索機能
+  const performRealTimeSearch = async (query: string) => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      console.log(`🔍 リアルタイム検索: "${query}"`);
+      
+      // プロテイン関連キーワードを追加して検索精度向上
+      const searchKeyword = query.includes('プロテイン') ? query : `${query} プロテイン`;
+      const products = await searchRakutenProducts(searchKeyword, 2); // 2ページまで
+      
+      setSearchResults(products);
+      console.log(`✅ リアルタイム検索完了: ${products.length}件`);
+    } catch (error) {
+      console.error('リアルタイム検索エラー:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // 検索のデバウンス処理
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        performRealTimeSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+        setIsSearching(false);
+      }
+    }, 800); // 800ms後に検索実行
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
   // 最初から全商品を読み込み
   useEffect(() => {
     if (allProducts.length === 0) {
@@ -386,9 +442,10 @@ export default function GeminiPage() {
     }
   };
 
-  // Logic for filtering - 常にallProductsを使用
-  const sourceProducts = allProducts;
-  console.log(`🔍 フィルタリング開始: ソース商品数=${sourceProducts.length}, 選択カテゴリ=${selectedCategory}`);
+  // Logic for filtering - リアルタイム検索結果または既存商品を使用
+  const sourceProducts = searchQuery && searchResults.length > 0 ? searchResults : allProducts;
+  const isUsingSearchResults = searchQuery && searchResults.length > 0;
+  console.log(`🔍 フィルタリング開始: ソース商品数=${sourceProducts.length}, 選択カテゴリ=${selectedCategory}, 検索結果使用=${isUsingSearchResults}`);
   
   let displayProducts = sourceProducts.filter(p => {
     // 1. Search Query Filter
@@ -574,7 +631,7 @@ export default function GeminiPage() {
                       <input 
                         id="search-input"
                         type="text" 
-                        placeholder="商品名、成分（WPIなど）で検索..." 
+                        placeholder="何でも検索してみて！例: チョコ味、ザバス、WPI、安い..." 
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
@@ -582,6 +639,11 @@ export default function GeminiPage() {
                         }}
                         className="w-full pl-12 pr-10 py-3.5 bg-white border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base transition-shadow hover:shadow-md text-secondary"
                       />
+                      {isSearching && (
+                        <div className="absolute right-12 top-1/2 -translate-y-1/2">
+                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
                       {searchQuery && (
                         <button 
                           onClick={() => setSearchQuery('')}
