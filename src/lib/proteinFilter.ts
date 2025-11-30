@@ -15,22 +15,22 @@ export function isValidProteinProduct(itemName: string, description?: string): b
   const desc = (description || '').toLowerCase();
   const fullText = `${name} ${desc}`;
   
-  // 必須キーワード - これらのうち少なくとも1つが含まれている必要
-  const essentialKeywords = [
+  // プロテイン必須キーワード - プロテインサイトなので絶対にプロテイン関連のみ
+  const proteinKeywords = [
     'プロテイン', 'protein', 'ホエイ', 'whey', 'ソイ', 'soy', 
-    'カゼイン', 'casein', '大豆プロテイン', 'bcaa', 'eaa', 'アミノ酸'
+    'カゼイン', 'casein', '大豆プロテイン'
   ];
   
   // 除外キーワード - これらが含まれていたら除外
   const excludeKeywords = [
     // 関連商品（プロテイン以外）
     'シェイカー', 'ボトル', '容器', 'ドリンク', '飲料水', '飲み物',
-    'クレアチン', 'hmb', 'グルタミン',
+    'クレアチン', 'hmb', 'グルタミン', 'bcaa', 'eaa', 'アミノ酸',
     'マルチビタミン', 'フィッシュオイル', 'オメガ',
     
     // 加工食品
     'バー', '棒', 'クッキー', 'ウエハース', 'グミ', 'ゼリー',
-    'タブレット', '錠剤', 'カプセル',
+    'タブレット', '錠剤', 'カプセル', 'サプリメント',
     
     // アクセサリ
     'スプーン', 'ファンネル', '漏斗', 'メジャー', '計量',
@@ -45,8 +45,8 @@ export function isValidProteinProduct(itemName: string, description?: string): b
     '青汁', '酵素', 'コラーゲン'
   ];
   
-  // 必須キーワードチェック
-  const hasEssential = essentialKeywords.some(keyword => 
+  // プロテイン必須キーワードチェック
+  const hasProtein = proteinKeywords.some(keyword => 
     fullText.includes(keyword.toLowerCase())
   );
   
@@ -55,12 +55,11 @@ export function isValidProteinProduct(itemName: string, description?: string): b
     fullText.includes(keyword.toLowerCase())
   );
   
-  // BCAAやアミノ酸の場合は重量チェックを緩和
-  const isBCAA = fullText.includes('bcaa') || fullText.includes('eaa') || fullText.includes('アミノ酸');
+  // 重量の記載があることを確認（プロテイン粉末には通常重量表記がある）
   const hasWeight = /\d+(?:\.\d+)?(?:kg|g|キロ|グラム)/i.test(itemName);
   
-  // BCAAの場合は重量チェック不要、プロテインの場合は重量チェック必須
-  return hasEssential && !hasExcluded && (isBCAA || hasWeight);
+  // 絶対にプロテインのみ: プロテインキーワード必須 + 除外なし + 重量あり
+  return hasProtein && !hasExcluded && hasWeight;
 }
 
 // プロテイン種類抽出（統一版）
@@ -83,8 +82,6 @@ export function extractCategory(itemName: string): string {
   if (name.includes('ホエイ') || name.includes('whey')) return 'WHEY';
   if (name.includes('ソイ') || name.includes('soy') || name.includes('大豆') || name.includes('植物性')) return 'VEGAN';
   if (name.includes('カゼイン') || name.includes('casein')) return 'CASEIN';
-  if (name.includes('bcaa') || name.includes('eaa') || name.includes('アミノ酸')) return 'BCAA';
-  if (name.includes('シェイカー') || name.includes('ボトル') || name.includes('容器')) return 'ACCESSORIES';
   
   return 'WHEY'; // デフォルトはホエイとする
 }

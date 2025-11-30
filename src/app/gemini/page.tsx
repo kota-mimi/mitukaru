@@ -136,8 +136,8 @@ export default function GeminiPage() {
     try {
       setIsLoadingAllProducts(true);
       
-      // 複数キーワードで検索して網羅的にデータ取得
-      const keywords = ['プロテイン', 'ホエイプロテイン', 'ソイプロテイン', 'casein', 'bcaa', 'アミノ酸'];
+      // 複数キーワードで検索して網羅的にデータ取得（プロテインのみ）
+      const keywords = ['プロテイン', 'ホエイプロテイン', 'ソイプロテイン', 'casein'];
       let allProducts: any[] = [];
       
       for (const keyword of keywords) {
@@ -431,7 +431,6 @@ export default function GeminiPage() {
     { id: 'WHEY', label: 'ホエイ' },
     { id: 'CASEIN', label: 'カゼイン' },
     { id: 'VEGAN', label: 'ソイ/植物性' },
-    { id: 'BCAA', label: 'アミノ酸' },
   ];
 
   const navigateTo = (view: 'HOME' | 'GUIDE') => {
