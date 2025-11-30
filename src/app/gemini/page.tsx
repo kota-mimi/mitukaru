@@ -370,10 +370,11 @@ export default function GeminiPage() {
       label: '人気ランキング', 
       apply: async () => {
         setIsLoading(true);
+        setActiveTabId('POPULAR');
         const products = await searchRakutenProducts('プロテイン', 5); // 5ページ取得
         // 評価順でソート
         const sortedProducts = products.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
-        setRecommendedProducts(sortedProducts.slice(0, 50));
+        setAllProducts(sortedProducts.slice(0, 50)); // allProductsに保存
         setSortBy('RATING');
         setSelectedCategory('ALL');
         setSearchQuery('');
@@ -386,6 +387,7 @@ export default function GeminiPage() {
       id: 'ALL_PRODUCTS', 
       label: '全商品', 
       apply: () => {
+        setActiveTabId('ALL_PRODUCTS');
         setSortBy('RATING');
         setSelectedCategory('ALL');
         setSearchQuery('');
@@ -655,7 +657,7 @@ export default function GeminiPage() {
                             key={cat.id}
                             onClick={async () => {
                               setSelectedCategory(cat.id);
-                              setActiveTabId('CUSTOM');
+                              setActiveTabId('ALL_PRODUCTS'); // allProductsを表示するタブに切り替え
                               
                               // カテゴリに応じて適切なキーワードで商品を取得
                               if (cat.id === 'VEGAN') {
@@ -673,6 +675,11 @@ export default function GeminiPage() {
                                 const products = await searchRakutenProducts('カゼインプロテイン', 3);
                                 setAllProducts(products);
                                 setIsLoading(false);
+                              } else if (cat.id === 'ALL') {
+                                // 全てを選択した場合は全商品を読み込み
+                                if (allProducts.length === 0) {
+                                  loadAllProducts();
+                                }
                               }
                             }}
                             className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
