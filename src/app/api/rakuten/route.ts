@@ -53,15 +53,19 @@ export async function GET(request: NextRequest) {
       const description = product.itemCaption?.replace(/<[^>]*>/g, '') || ''
       const nutrition = extractNutrition(product.itemName, description)
       
-      // 検索キーワードベースでカテゴリを決定（商品名で判定できない場合）
+      // 検索キーワードベースでカテゴリを強制決定
       let category = extractCategory(product.itemName)
-      if (keyword.includes('ソイ') && category === 'WHEY') {
+      
+      // ソイプロテイン検索の場合は強制的にVEGANカテゴリにする
+      if (keyword.includes('ソイ')) {
         category = 'VEGAN'
       }
-      if (keyword.includes('ホエイ') && category !== 'VEGAN') {
+      // ホエイプロテイン検索の場合は強制的にWHEYカテゴリにする  
+      else if (keyword.includes('ホエイ')) {
         category = 'WHEY'
       }
-      if (keyword.includes('カゼイン') && category === 'WHEY') {
+      // カゼイン検索の場合は強制的にCASEINカテゴリにする
+      else if (keyword.includes('カゼイン')) {
         category = 'CASEIN'
       }
       
