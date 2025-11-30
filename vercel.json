@@ -9,6 +9,9 @@
     }
   ],
   "env": {
-    "CACHE_UPDATE_TOKEN": "update-morning-8am"
+    "CACHE_UPDATE_TOKEN": "update-morning-8am",
+    "RAKUTEN_APP_ID": "1054552037945576340",
+    "YAHOO_APP_ID": "dj00aiZpPWFMbzY1NWRQOEJVNyZZZPNvbnnJ1bWVyc2VjmVQJng9OWE-",
+    "YAHOO_AFFILIATE_ID": "your_valuecommerce_affiliate_id_here"
   }
 }
